@@ -1,5 +1,6 @@
 package com.bezkoder.spring.jpa.postgresql;
 
+import com.bezkoder.spring.jpa.postgresql.model.RobotDto;
 import com.bezkoder.spring.jpa.postgresql.repository.RobotRepository;
 import com.bezkoder.spring.jpa.postgresql.service.RobotService;
 import lombok.extern.log4j.Log4j2;
@@ -26,25 +27,28 @@ public class GreetingController {
     @SendTo("/topic/greetings")
     public Greeting greeting(SelectEnemy message) throws Exception {
         log.info("ok");
-        int bot = (bot(message.getEnemy(),message.getSelectRobot()));
+        String bot = bot(message.getEnemy(), message.getSelectRobot());
         return new Greeting(bot + " " + botRandomAttack());
     }
 
     //@SendTo("/topic/greetings")
-    public int bot(BigInteger enemy, BigInteger robot) {
+    public String bot(BigInteger enemy, BigInteger robot) {
 
-        int result = robotService.attack(enemy,robot);
+        int result = robotService.attack(enemy, robot);
+        RobotDto Enemy = robotService.getFromEntity(robotService.getRobotById(enemy));
 
-
-        return result;
+        return "My turn : " + Enemy.getName() + " hp remain: " + result;
     }
 
-    public int botRandomAttack() {
-        int enemy = RobotService.random(11,17);
-        int myRobot = RobotService.random(11,17);
+    public String botRandomAttack() {
+        int enemy = RobotService.random(12, 14);
+        int myRobot = RobotService.random(15, 17);
 
-        int result =robotService.attack(BigInteger.valueOf(enemy),BigInteger.valueOf(myRobot));
+        int result = robotService.attack(BigInteger.valueOf(enemy), BigInteger.valueOf(myRobot));
 
-        return result;
+        RobotDto Enemy = robotService.getFromEntity(robotService.getRobotById(BigInteger.valueOf(enemy)));
+        RobotDto we = robotService.getFromEntity(robotService.getRobotById(BigInteger.valueOf(myRobot)));
+
+        return "| Enemy turn: " + Enemy.getName() + " attack " + we.getName() + " hp remain: " + result;
     }
 }
